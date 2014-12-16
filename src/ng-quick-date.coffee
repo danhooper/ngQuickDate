@@ -10,42 +10,31 @@
 
 app = angular.module("ngQuickDate", [])
 
-app.provider "ngQuickDateDefaults", ->
+app.factory "ngQuickDateDefaults", ->
   {
-    options: {
-      dateFormat: 'M/d/yyyy'
-      timeFormat: 'h:mm a'
-      labelFormat: null
-      placeholder: 'Click to Set Date'
-      hoverText: null
-      buttonIconHtml: null
-      closeButtonHtml: '&times;'
-      nextLinkHtml: 'Next &rarr;'
-      prevLinkHtml: '&larr; Prev'
-      disableTimepicker: false
-      disableClearButton: false
-      defaultTime: null
-      dayAbbreviations: ["Su", "M", "Tu", "W", "Th", "F", "Sa"],
-      dateFilter: null
-      clearHtml: 'Clear'
-      dateHtml: 'Date'
-      timeHtml: 'Time'
-      parseDateFunction: (str) ->
-        seconds = Date.parse(str)
-        if isNaN(seconds)
-          return null
-        else
-          new Date(seconds)
-    }
-    $get: ->
-      @options
-
-    set: (keyOrHash, value) ->
-      if typeof(keyOrHash) == 'object'
-        for k, v of keyOrHash
-          @options[k] = v
+    dateFormat: 'M/d/yyyy'
+    timeFormat: 'h:mm a'
+    labelFormat: null
+    placeholder: 'Click to Set Date'
+    hoverText: null
+    buttonIconHtml: null
+    closeButtonHtml: '&times;'
+    nextLinkHtml: 'Next &rarr;'
+    prevLinkHtml: '&larr; Prev'
+    disableTimepicker: false
+    disableClearButton: false
+    defaultTime: null
+    dayAbbreviations: ["Su", "M", "Tu", "W", "Th", "F", "Sa"],
+    dateFilter: null
+    clearHtml: 'Clear'
+    dateHtml: 'Date'
+    timeHtml: 'Time'
+    parseDateFunction: (str) ->
+      seconds = Date.parse(str)
+      if isNaN(seconds)
+        return null
       else
-        @options[keyOrHash] = value
+        new Date(seconds)
   }
 
 app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', (ngQuickDateDefaults, $filter, $sce) ->

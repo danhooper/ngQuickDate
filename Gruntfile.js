@@ -35,13 +35,22 @@ module.exports = function(grunt) {
           debounceDelay: 250,
         },
       }
-    }
+    },
+    connect: {
+      main: {
+        options: {
+          host:'0.0.0.0',
+          keepalive:true
+        }
+      }
+    },    
   });
 
   grunt.loadNpmTasks('grunt-contrib-coffee');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-connect');
 
   grunt.registerTask('default', ['coffee', 'uglify', 'less', 'watch']);
 };

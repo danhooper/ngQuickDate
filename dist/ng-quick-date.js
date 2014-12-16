@@ -3,50 +3,32 @@
 
   app = angular.module("ngQuickDate", []);
 
-  app.provider("ngQuickDateDefaults", function() {
+  app.factory("ngQuickDateDefaults", function() {
     return {
-      options: {
-        dateFormat: 'M/d/yyyy',
-        timeFormat: 'h:mm a',
-        labelFormat: null,
-        placeholder: 'Click to Set Date',
-        hoverText: null,
-        buttonIconHtml: null,
-        closeButtonHtml: '&times;',
-        nextLinkHtml: 'Next &rarr;',
-        prevLinkHtml: '&larr; Prev',
-        disableTimepicker: false,
-        disableClearButton: false,
-        defaultTime: null,
-        dayAbbreviations: ["Su", "M", "Tu", "W", "Th", "F", "Sa"],
-        dateFilter: null,
-        clearHtml: 'Clear',
-        dateHtml: 'Date',
-        timeHtml: 'Time',
-        parseDateFunction: function(str) {
-          var seconds;
-          seconds = Date.parse(str);
-          if (isNaN(seconds)) {
-            return null;
-          } else {
-            return new Date(seconds);
-          }
-        }
-      },
-      $get: function() {
-        return this.options;
-      },
-      set: function(keyOrHash, value) {
-        var k, v, _results;
-        if (typeof keyOrHash === 'object') {
-          _results = [];
-          for (k in keyOrHash) {
-            v = keyOrHash[k];
-            _results.push(this.options[k] = v);
-          }
-          return _results;
+      dateFormat: 'M/d/yyyy',
+      timeFormat: 'h:mm a',
+      labelFormat: null,
+      placeholder: 'Click to Set Date',
+      hoverText: null,
+      buttonIconHtml: null,
+      closeButtonHtml: '&times;',
+      nextLinkHtml: 'Next &rarr;',
+      prevLinkHtml: '&larr; Prev',
+      disableTimepicker: false,
+      disableClearButton: false,
+      defaultTime: null,
+      dayAbbreviations: ["Su", "M", "Tu", "W", "Th", "F", "Sa"],
+      dateFilter: null,
+      clearHtml: 'Clear',
+      dateHtml: 'Date',
+      timeHtml: 'Time',
+      parseDateFunction: function(str) {
+        var seconds;
+        seconds = Date.parse(str);
+        if (isNaN(seconds)) {
+          return null;
         } else {
-          return this.options[keyOrHash] = value;
+          return new Date(seconds);
         }
       }
     };

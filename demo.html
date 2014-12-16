@@ -32,10 +32,6 @@
     <script type="text/javascript" src="dist/ng-quick-date.js"></script>
     <script type='text/javascript'>
       var app = angular.module("ngQuickDateDemo", ["ngQuickDate"]);
-      app.config(function(ngQuickDateDefaultsProvider) {
-        return ngQuickDateDefaultsProvider.set({
-        });
-      });
       app.controller("DemoCtrl", function($scope) {
         $scope.myDate = null
         $scope.setToToday = function() { $scope.myDate = new Date(); }
