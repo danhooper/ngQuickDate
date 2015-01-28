@@ -69,6 +69,10 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', (ngQ
       scope.invalid = true
       if typeof(attrs.initValue) == 'string'
         ngModelCtrl.$setViewValue(attrs.initValue)
+      if !scope.defaultTime
+        templateDate = new Date(2013, 0, 1, 12, 0)
+        scope.datePlaceholder = $filter('date')(templateDate, scope.dateFormat);
+        scope.timePlaceholder = $filter('date')(templateDate, scope.timeFormat);
       setCalendarDate()
       refreshView()
 
@@ -237,6 +241,28 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', (ngQ
     getDaysInMonth = (year, month) ->
       [31, (if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0) then 29 else 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month]
 
+    # Executes a function one time per N milliseconds (wait)
+    debounce = (func, wait) ->
+      timeout = args = context = timestamp = result = null
+      later = ->
+        last = +new Date() - timestamp
+
+        if last < wait && last > 0
+          timeout = setTimeout(later, wait - last)
+        else
+          timeout = null
+
+      return ->
+        context = this
+        args = arguments
+        timestamp = +new Date()
+        if !timeout
+          timeout = setTimeout(later, wait)
+          result = func.apply(context, args)
+          context = args = null
+
+        return result
+
     # DATA WATCHES
     # ==================================
 
@@ -262,11 +288,14 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', (ngQ
 
     # VIEW ACTIONS
     # ==================================
-    scope.toggleCalendar = (show) ->
-      if isFinite(show)
-        scope.calendarShown = show
-      else
-        scope.calendarShown = not scope.calendarShown
+    scope.toggleCalendar = debounce(
+      (show) ->
+        if isFinite(show)
+          scope.calendarShown = show
+        else
+          scope.calendarShown = not scope.calendarShown
+      150
+    )
 
     # Select a new model date. This is called in 3 situations:
     #   * Clicking a day on the calendar or from the `selectDateFromInput`
@@ -345,11 +374,11 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', (ngQ
                 <div class='quickdate-text-inputs'>
                   <div class='quickdate-input-wrapper'>
                     <label>Date</label>
-                    <input class='quickdate-date-input' ng-class="{'ng-invalid': inputDateErr}" name='inputDate' type='text' ng-model='inputDate' placeholder='1/1/2013' ng-enter="selectDateFromInput(true)" ng-blur="selectDateFromInput(false)" on-tab='onDateInputTab()' />
+                    <input class='quickdate-date-input' ng-class="{'ng-invalid': inputDateErr}" name='inputDate' type='text' ng-model='inputDate' placeholder='{{ datePlaceholder }}' ng-enter="selectDateFromInput(true)" ng-blur="selectDateFromInput(false)" on-tab='onDateInputTab()' />
                   </div>
                   <div class='quickdate-input-wrapper' ng-hide='disableTimepicker'>
                     <label>Time</label>
-                    <input class='quickdate-time-input' ng-class="{'ng-invalid': inputTimeErr}" name='inputTime' type='text' ng-model='inputTime' placeholder='12:00 PM' ng-enter="selectDateFromInput(true)" ng-blur="selectDateFromInput(false)" on-tab='onTimeInputTab()'>
+                    <input class='quickdate-time-input' ng-class="{'ng-invalid': inputTimeErr}" name='inputTime' type='text' ng-model='inputTime' placeholder='{{ timePlaceholder }}' ng-enter="selectDateFromInput(true)" ng-blur="selectDateFromInput(false)" on-tab='onTimeInputTab()'>
                   </div>
                 </div>
                 <div class='quickdate-calendar-header'>
