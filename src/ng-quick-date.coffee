@@ -53,6 +53,7 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
   scope:
     dateFilter: '=?'
     disableTimepicker: '=?'
+    disableClearButton: '=?'
     timezone: '=?'
     onChange: "&"
     required: '@'
@@ -155,7 +156,6 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
       setInputFieldValues(date)
       scope.mainButtonStr = if date then $filter('date')(date, scope.getLabelFormat(), scope.timezone) else scope.placeholder
       scope.invalid = ngModelCtrl.$invalid
-
 
     # Set the values used in the 2 input fields
     setInputFieldValues = (val) ->
