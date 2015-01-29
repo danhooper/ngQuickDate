@@ -13,12 +13,29 @@
     <div ng-controller='DemoCtrl'>
       <form name='date_form' novalidate>
         <p>
-          <label>My Date</label>
-          <quick-datepicker name='myDate' ng-model='myDate' required></quick-datepicker>
+          <label>Selected Date</label>
+          <input type='text' name='myDateText' ng-model='myDate' required />
         </p>
         <p>
-          <label>Some other field</label>
-          <input type='text' name='otherField' ng-model='otherField' required />
+          <label>Selected Date in UTC</label>
+          <span>{{myDate.toISOString()}}</span>
+        </p>
+        <p>
+          <label>My Date</label>
+          <quick-datepicker name='myDate' ng-model='myDate' required
+                            disable-timepicker="setting.disableTimepicker"
+                            timezone="setting.timezone"
+                            disable-clear-button='false'>
+          </quick-datepicker>
+        </p>
+        <p>
+          <label>Disable Time Picker</label>
+          <input type='checkbox' name='disableTimepicker' ng-model='setting.disableTimepicker' required />
+        </p>
+        <p>
+          <label>UTC Time Zone</label>
+          <input type='checkbox' name='utcTimezone' ng-model='setting.utcTimezone'
+                ng-change="setting.timezone = setting.utcTimezone?'UTC':null" required />
         </p>
       </form>
       <br/>
@@ -29,15 +46,20 @@
     <!-- <script type='text/javascript' src='vendor/sugar.js' /> -->
     <!-- <script type='text/javascript' src='vendor/date.js' /> -->
     <!-- <script type='text/javascript' src='bower_components/jquery/jquery.js' /> -->
-    <script type="text/javascript" src="dist/ng-quick-date.js"></script>
+    <script type="text/javascript" src="src/ng-quick-date.js"></script>
     <script type='text/javascript'>
       var app = angular.module("ngQuickDateDemo", ["ngQuickDate"]);
       app.config(function(ngQuickDateDefaultsProvider) {
         return ngQuickDateDefaultsProvider.set({
+          disableClearButton: true
         });
       });
       app.controller("DemoCtrl", function($scope) {
         $scope.myDate = null
+        $scope.setting = {
+          disableTimepicker: false,
+          utcTimezone: false
+        }
         $scope.setToToday = function() { $scope.myDate = new Date(); }
       });
     </script>
