@@ -17,11 +17,11 @@
           <input type='text' name='myDateText' ng-model='myDate' required />
         </p>
         <p>
-          <label>Selected Date in UTC</label>
-          <span>{{myDate.toISOString()}}</span>
+          <label>Selected Date in UTC: </label>
+          <code>{{myDate.toISOString()}}</code>
         </p>
         <p>
-          <label>My Date</label>
+          <label><strong>My Date</strong></label>
           <quick-datepicker name='myDate' ng-model='myDate' required
                             disable-timepicker="setting.disableTimepicker"
                             timezone="setting.timezone"
@@ -50,7 +50,7 @@
     <!-- <script type='text/javascript' src='vendor/sugar.js' /> -->
     <!-- <script type='text/javascript' src='vendor/date.js' /> -->
     <!-- <script type='text/javascript' src='bower_components/jquery/jquery.js' /> -->
-    <script type="text/javascript" src="src/ng-quick-date.js"></script>
+    <script type="text/javascript" src="dist/ng-quick-date.js"></script>
     <script type='text/javascript'>
       var app = angular.module("ngQuickDateDemo", ["ngQuickDate"]);
       app.config(function(ngQuickDateDefaultsProvider) {

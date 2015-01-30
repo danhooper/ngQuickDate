@@ -21,6 +21,7 @@
         dayAbbreviations: ["Su", "M", "Tu", "W", "Th", "F", "Sa"],
         dateFilter: null,
         timezone: null,
+        debug: false,
         parseDateFunction: function(str) {
           var seconds;
           seconds = Date.parse(str);
@@ -58,18 +59,22 @@
         scope: {
           dateFilter: '=?',
           disableTimepicker: '=?',
+          disableClearButton: '=?',
           timezone: '=?',
           onChange: "&",
-          required: '@'
+          required: '@',
+          debug: '=?'
         },
         replace: true,
         link: function(scope, element, attrs, ngModelCtrl) {
-          var combineDateAndTime, dateToString, datepickerClicked, datesAreEqual, datesAreEqualToMinute, debounce, debugLog, emptyTime, getDate, getDay, getDaysInMonth, getFullYear, getHours, getMilliseconds, getMinutes, getMonth, getSeconds, initialize, isUTC, parseDateString, refreshView, setCalendarDate, setConfigOptions, setDate, setFullYear, setHours, setInputFieldValues, setMilliseconds, setMinutes, setMonth, setSeconds, setupCalendarView, stringToDate, templateDate;
+          var addMonth, combineDateAndTime, dateToString, datepickerClicked, datesAreEqual, datesAreEqualToMinute, debounce, debugLog, emptyTime, getDate, getDay, getDaysInMonth, getFullYear, getHours, getMilliseconds, getMinutes, getMonth, getSeconds, initialize, isUTC, parseDateString, refreshView, setCalendarDate, setConfigOptions, setDate, setFullYear, setHours, setInputFieldValues, setMilliseconds, setMinutes, setMonth, setSeconds, setupCalendarView, stringToDate, templateDate;
           emptyTime = '00:00:00';
           debugLog = function(message) {
-            return $log.debug("[quickdate] " + message);
+            if (scope.debug) {
+              return $log.debug("[quickdate] " + message);
+            }
           };
-          templateDate = new Date(2013, 0, 1, 12, 0);
+          templateDate = new Date("2015-01-01T12:00Z");
           initialize = function() {
             setConfigOptions();
             scope.toggleCalendar(false);
@@ -84,20 +89,20 @@
             return refreshView();
           };
           scope.getDatePlaceholder = function() {
-            return $filter('date')(templateDate, scope.getDateFormat());
+            return dateToString(templateDate, scope.getDateFormat());
           };
           scope.getTimePlaceholder = function() {
-            return $filter('date')(templateDate, scope.getTimeFormat());
+            return dateToString(templateDate, scope.getTimeFormat());
           };
           scope.getDateFormat = function() {
-            if (scope.timezone === "UTC") {
+            if (isUTC()) {
               return "yyyy-MM-dd";
             } else {
               return scope.dateFormat;
             }
           };
           scope.getTimeFormat = function() {
-            if (scope.timezone === "UTC") {
+            if (isUTC()) {
               return "HH:mm:ss";
             } else {
               return scope.timeFormat;
@@ -109,7 +114,6 @@
           };
           setConfigOptions = function() {
             var key, value, _ref;
-            debugLog("setting configuration");
             for (key in ngQuickDateDefaults) {
               value = ngQuickDateDefaults[key];
               if (key.match(/[Hh]tml/)) {
@@ -135,17 +139,16 @@
           });
           refreshView = function() {
             var date;
-            debugLog("refreshView");
             date = ngModelCtrl.$modelValue ? parseDateString(ngModelCtrl.$modelValue) : null;
             setupCalendarView();
             setInputFieldValues(date);
-            scope.mainButtonStr = date ? $filter('date')(date, scope.getLabelFormat(), scope.timezone) : scope.placeholder;
+            scope.mainButtonStr = date ? dateToString(date, scope.getLabelFormat()) : scope.placeholder;
             return scope.invalid = ngModelCtrl.$invalid;
           };
           setInputFieldValues = function(val) {
             if (val != null) {
-              scope.inputDate = $filter('date')(val, scope.getDateFormat(), scope.timezone);
-              return scope.inputTime = $filter('date')(val, scope.getTimeFormat(), scope.timezone);
+              scope.inputDate = dateToString(val, scope.getDateFormat());
+              return scope.inputTime = dateToString(val, scope.getTimeFormat());
             } else {
               scope.inputDate = null;
               return scope.inputTime = null;
@@ -160,17 +163,11 @@
             if (d.toString() === "Invalid Date") {
               d = new Date();
             }
-            if (isUTC()) {
-              d.setUTCDate(1);
-            } else {
-              d.setDate(1);
-            }
-            scope.calendarDate = new Date(d);
-            return debugLog("set calendarDate to " + (scope.calendarDate.toISOString()));
+            setDate(d, 1);
+            return scope.calendarDate = d;
           };
           setupCalendarView = function() {
             var curDate, d, day, daysInMonth, numRows, offset, row, selected, time, today, weeks, _i, _j, _ref, _ref1, _ref2, _ref3;
-            debugLog("setting up calendar view");
             offset = getDay(scope.calendarDate);
             daysInMonth = getDaysInMonth(getFullYear(scope.calendarDate), getMonth(scope.calendarDate));
             numRows = Math.ceil((offset + daysInMonth) / 7);
@@ -332,6 +329,9 @@
               return date.setSeconds(val);
             }
           };
+          addMonth = function(date, val) {
+            return new Date(setMonth(new Date(date), getMonth(date) + val));
+          };
           dateToString = function(date, format) {
             return $filter('date')(date, format, scope.timezone);
           };
@@ -344,7 +344,7 @@
           };
           parseDateString = ngQuickDateDefaults.parseDateFunction;
           combineDateAndTime = function(date, time) {
-            if (scope.timezone === "UTC") {
+            if (isUTC()) {
               return "" + date + "T" + time + "Z";
             } else {
               return "" + date + " " + time;
@@ -456,7 +456,6 @@
             if (closeCalendar == null) {
               closeCalendar = false;
             }
-            debugLog("selectDateFromInput");
             try {
               tmpDate = parseDateString(combineDateAndTime(scope.inputDate, emptyTime));
               if (tmpDate == null) {
@@ -500,11 +499,11 @@
             return true;
           };
           scope.nextMonth = function() {
-            setCalendarDate(new Date(setMonth(new Date(scope.calendarDate), getMonth(scope.calendarDate) + 1)));
+            setCalendarDate(addMonth(scope.calendarDate, 1));
             return refreshView();
           };
           scope.prevMonth = function() {
-            setCalendarDate(new Date(setMonth(new Date(scope.calendarDate), getMonth(scope.calendarDate) - 1)));
+            setCalendarDate(addMonth(scope.calendarDate, -1));
             return refreshView();
           };
           scope.clear = function() {
