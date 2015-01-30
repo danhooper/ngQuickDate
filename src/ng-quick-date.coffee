@@ -28,6 +28,7 @@ app.provider "ngQuickDateDefaults", ->
       dayAbbreviations: ["Su", "M", "Tu", "W", "Th", "F", "Sa"],
       dateFilter: null
       timezone: null
+      debug: false
       parseDateFunction: (str) ->
         seconds = Date.parse(str)
         if isNaN(seconds)
@@ -57,11 +58,12 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
     timezone: '=?'
     onChange: "&"
     required: '@'
+    debug: '=?'
 
   replace: true
   link: (scope, element, attrs, ngModelCtrl) ->
     emptyTime = '00:00:00'
-    debugLog = (message) -> $log.debug "[quickdate] " + message
+    debugLog = (message) -> if scope.debug then $log.debug "[quickdate] " + message
     templateDate = new Date(2013, 0, 1, 12, 0)
 
     # INITIALIZE VARIABLES AND CONFIGURATION
@@ -87,13 +89,13 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
     # Use the ISO formats if timezone is UTC.
     # This is necessary to ensure the date string is parsed in correct timezone.
     scope.getDateFormat = () ->
-      if scope.timezone is "UTC"
+      if isUTC()
         "yyyy-MM-dd"
       else
         scope.dateFormat
 
     scope.getTimeFormat = () ->
-      if scope.timezone is "UTC"
+      if isUTC()
         "HH:mm:ss"
       else
         scope.timeFormat
@@ -107,24 +109,11 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
 
     # Copy various configuration options from the default configuration to scope
     setConfigOptions = ->
-      debugLog "setting configuration"
       for key, value of ngQuickDateDefaults
         if key.match(/[Hh]tml/)
           scope[key] = $sce.trustAsHtml(ngQuickDateDefaults[key] || "")
         else if not scope[key]?
           scope[key] = attrs[key] ? ngQuickDateDefaults[key]
-
-      # Use the ISO format if timezone is UTC.
-      # This is necessary to ensure the date string is parsed in correct timezone.
-      # if scope.timezone is "UTC"
-      #   scope.dateFormat = "yyyy-MM-dd"
-      #   scope.timeFormat = "HH:mm:ss"
-
-      # # Generate the label format if not set
-      # if !scope.labelFormat
-      #   scope.labelFormat = scope.dateFormat
-      #   unless scope.disableTimepicker
-      #     scope.labelFormat += " " + scope.timeFormat
 
       if attrs.iconClass && attrs.iconClass.length
         scope.buttonIconHtml = $sce.trustAsHtml("<i ng-show='iconClass' class='#{attrs.iconClass}'></i>")
@@ -150,7 +139,6 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
 
     # Refresh the calendar, the input dates, and the button date
     refreshView = ->
-      debugLog "refreshView"
       date = if ngModelCtrl.$modelValue then parseDateString(ngModelCtrl.$modelValue) else null
       setupCalendarView()
       setInputFieldValues(date)
@@ -172,17 +160,12 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
       d = if val? then new Date(val) else new Date()
       if (d.toString() == "Invalid Date")
         d = new Date()
-      if isUTC()
-        d.setUTCDate(1)
-      else
-        d.setDate(1)
+      setDate(d, 1)
       scope.calendarDate = new Date(d)
-      debugLog "set calendarDate to #{scope.calendarDate.toISOString()}"
 
     # Setup the data needed by the table that makes up the calendar in the popup
     # Uses scope.calendarDate to decide which month to show
     setupCalendarView = ->
-      debugLog "setting up calendar view"
       offset = getDay(scope.calendarDate)
       daysInMonth = getDaysInMonth(getFullYear(scope.calendarDate), getMonth(scope.calendarDate))
       numRows = Math.ceil((offset + daysInMonth) / 7)
@@ -261,6 +244,8 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
     setMonth = (date, val) -> if isUTC() then date.setUTCMonth(val) else date.setMonth(val)
     setSeconds = (date, val) -> if isUTC() then date.setUTCSeconds(val) else date.setSeconds(val)
 
+    addMonth = (date, val) -> new Date(setMonth(new Date(date), getMonth(date) + val))
+
     dateToString = (date, format) ->
       $filter('date')(date, format, scope.timezone)
 
@@ -273,7 +258,7 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
     parseDateString = ngQuickDateDefaults.parseDateFunction
 
     combineDateAndTime = (date, time) ->
-      if scope.timezone is "UTC"
+      if isUTC()
         "#{date}T#{time}Z"
       else
         "#{date} #{time}"
@@ -387,7 +372,6 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
 
     # This is triggered when the date or time inputs have a blur or enter event.
     scope.selectDateFromInput = (closeCalendar=false) ->
-      debugLog "selectDateFromInput"
       try
         tmpDate = parseDateString(combineDateAndTime(scope.inputDate, emptyTime))
         if not tmpDate?
@@ -431,12 +415,10 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
 
     # View the next and previous months in the calendar popup
     scope.nextMonth = ->
-      setCalendarDate(new Date(
-        setMonth(new Date(scope.calendarDate), getMonth(scope.calendarDate) + 1)))
+      setCalendarDate(addMonth(scope.calendarDate, 1))
       refreshView()
     scope.prevMonth = ->
-      setCalendarDate(new Date(
-        setMonth(new Date(scope.calendarDate), getMonth(scope.calendarDate) - 1)))
+      setCalendarDate(addMonth(scope.calendarDate, -1))
       refreshView()
 
     # Set the date model to null

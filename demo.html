@@ -55,6 +55,7 @@
       var app = angular.module("ngQuickDateDemo", ["ngQuickDate"]);
       app.config(function(ngQuickDateDefaultsProvider) {
         return ngQuickDateDefaultsProvider.set({
+          debug: true
         });
       });
       app.controller("DemoCtrl", function($scope) {
