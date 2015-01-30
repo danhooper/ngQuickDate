@@ -49,10 +49,12 @@ describe "ngQuickDate", ->
 
       it 'allows the date to be updated', ->
         $textInput = $(element).find(".quickdate-date-input")
-        $textInput.val('2013-11-15')
+        $textInput.val('11/15/2013')
         browserTrigger($textInput, 'input')
         browserTrigger($textInput, 'blur')
-        expect(element.scope().myDate).toEqual(new Date(Date.parse('2013-11-15')))
+        # the expected result here cannot be ISO format "2013-11-15"
+        # which will be treated as UTC time in Chrome
+        expect(element.scope().myDate).toEqual(new Date(2013, 10, 15))
 
     describe 'Given a basic datepicker', ->
       beforeEach angular.mock.inject(($compile, $rootScope) ->
@@ -148,7 +150,7 @@ describe "ngQuickDate", ->
       describe 'And I click the Next Month button', ->
         beforeEach ->
           nextButton = $(element).find('.quickdate-next-month')
-          browserTrigger(nextButton, 'click');
+          browserTrigger(nextButton, 'click')
           scope.$apply()
 
         it 'shows September', ->

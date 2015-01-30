@@ -13,12 +13,33 @@
     <div ng-controller='DemoCtrl'>
       <form name='date_form' novalidate>
         <p>
-          <label>My Date</label>
-          <quick-datepicker name='myDate' ng-model='myDate' required></quick-datepicker>
+          <label>Selected Date</label>
+          <input type='text' name='myDateText' ng-model='myDate' required />
         </p>
         <p>
-          <label>Some other field</label>
-          <input type='text' name='otherField' ng-model='otherField' required />
+          <label>Selected Date in UTC: </label>
+          <code>{{myDate.toISOString()}}</code>
+        </p>
+        <p>
+          <label><strong>My Date</strong></label>
+          <quick-datepicker name='myDate' ng-model='myDate' required
+                            disable-timepicker="setting.disableTimepicker"
+                            timezone="setting.timezone"
+                            disable-clear-button='setting.disableClearButton'>
+          </quick-datepicker>
+        </p>
+        <p>
+          <label>Disable Time Picker</label>
+          <input type='checkbox' name='disableTimepicker' ng-model='setting.disableTimepicker' />
+        </p>
+        <p>
+          <label>Disable Clear Button</label>
+          <input type='checkbox' name='disableClearButton' ng-model='setting.disableClearButton' />
+        </p>
+        <p>
+          <label>UTC Time Zone</label>
+          <input type='checkbox' name='utcTimezone' ng-model='setting.utcTimezone'
+                ng-change="setting.timezone = setting.utcTimezone?'UTC':null" />
         </p>
       </form>
       <br/>
@@ -34,10 +55,16 @@
       var app = angular.module("ngQuickDateDemo", ["ngQuickDate"]);
       app.config(function(ngQuickDateDefaultsProvider) {
         return ngQuickDateDefaultsProvider.set({
+          debug: true
         });
       });
       app.controller("DemoCtrl", function($scope) {
         $scope.myDate = null
+        $scope.setting = {
+          utcTimezone: false,
+          disableTimepicker: false,
+          disableClearButton: false
+        }
         $scope.setToToday = function() { $scope.myDate = new Date(); }
       });
     </script>
