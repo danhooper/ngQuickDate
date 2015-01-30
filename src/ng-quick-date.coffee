@@ -64,7 +64,7 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
   link: (scope, element, attrs, ngModelCtrl) ->
     emptyTime = '00:00:00'
     debugLog = (message) -> if scope.debug then $log.debug "[quickdate] " + message
-    templateDate = new Date(2013, 0, 1, 12, 0)
+    templateDate = new Date("2015-01-01T12:00Z")
 
     # INITIALIZE VARIABLES AND CONFIGURATION
     # ================================
@@ -81,10 +81,10 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
       refreshView()
 
     scope.getDatePlaceholder = () ->
-      $filter('date')(templateDate, scope.getDateFormat())
+      dateToString(templateDate, scope.getDateFormat())
 
     scope.getTimePlaceholder = () ->
-      $filter('date')(templateDate, scope.getTimeFormat())
+      dateToString(templateDate, scope.getTimeFormat())
 
     # Use the ISO formats if timezone is UTC.
     # This is necessary to ensure the date string is parsed in correct timezone.
@@ -142,14 +142,14 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
       date = if ngModelCtrl.$modelValue then parseDateString(ngModelCtrl.$modelValue) else null
       setupCalendarView()
       setInputFieldValues(date)
-      scope.mainButtonStr = if date then $filter('date')(date, scope.getLabelFormat(), scope.timezone) else scope.placeholder
+      scope.mainButtonStr = if date then dateToString(date, scope.getLabelFormat()) else scope.placeholder
       scope.invalid = ngModelCtrl.$invalid
 
     # Set the values used in the 2 input fields
     setInputFieldValues = (val) ->
       if val?
-        scope.inputDate = $filter('date')(val, scope.getDateFormat(), scope.timezone)
-        scope.inputTime = $filter('date')(val, scope.getTimeFormat(), scope.timezone)
+        scope.inputDate = dateToString(val, scope.getDateFormat())
+        scope.inputTime = dateToString(val, scope.getTimeFormat())
       else
         scope.inputDate = null
         scope.inputTime = null
@@ -161,7 +161,7 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
       if (d.toString() == "Invalid Date")
         d = new Date()
       setDate(d, 1)
-      scope.calendarDate = new Date(d)
+      scope.calendarDate = d
 
     # Setup the data needed by the table that makes up the calendar in the popup
     # Uses scope.calendarDate to decide which month to show
