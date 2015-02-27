@@ -1,7 +1,11 @@
 {
-  "name": "ngQuickDate",
-  "version": "1.3.3",
-  "main": ["dist/ng-quick-date.js", "dist/ng-quick-date.css", "dist/ng-quick-date-default-theme.css"],
+  "name": "gildorwang-ngQuickDate",
+  "version": "1.4.0",
+  "main": [
+    "dist/ng-quick-date.js",
+    "dist/ng-quick-date.css",
+    "dist/ng-quick-date-default-theme.css"
+  ],
   "ignore": [
     "bower_components",
     "node_modules",
@@ -12,6 +16,12 @@
     "karma.conf.coffee",
     "package.json",
     "screenshot.png"
+  ],
+  "keywords": [
+    "angular",
+    "datepicker",
+    "quickdate",
+    "ngQuickDate"
   ],
   "dependencies": {
     "angular": "~1.3.0"

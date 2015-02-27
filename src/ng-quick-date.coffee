@@ -1,9 +1,10 @@
 #
 # ngQuickDate
-# by Adam Albrecht
+# originally by Adam Albrecht
 # http://adamalbrecht.com
+# modified by Ken Wang
 #
-# Source Code: https://github.com/adamalbrecht/ngQuickDate
+# Source Code: https://github.com/gildorwang/ngQuickDate
 #
 # Compatible with Angular 1.3.0+
 #
