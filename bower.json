@@ -1,5 +1,5 @@
 {
-  "name": "gildorwang-ngQuickDate",
+  "name": "gildorwang-ng-quick-date",
   "version": "1.4.0",
   "main": [
     "dist/ng-quick-date.js",
