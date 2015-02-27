@@ -176,11 +176,7 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
         weeks.push([])
         for day in [0..6]
           d = new Date(curDate)
-          if scope.defaultTime
-            time = scope.defaultTime.split(':')
-            setHours(d, time[0] ? 0)
-            setMinutes(d, time[1] ? 0)
-            setSeconds(d, time[2] ? 0)
+          setTime(d, emptyTime)
           selected = ngModelCtrl.$modelValue && d && datesAreEqual(d, ngModelCtrl.$modelValue)
           today = datesAreEqual(d, new Date())
           weeks[row].push({
@@ -243,6 +239,12 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
     setMinutes = (date, val) -> if isUTC() then date.setUTCMinutes(val) else date.setMinutes(val)
     setMonth = (date, val) -> if isUTC() then date.setUTCMonth(val) else date.setMonth(val)
     setSeconds = (date, val) -> if isUTC() then date.setUTCSeconds(val) else date.setSeconds(val)
+    setTime = (date, val) ->
+      parts = (val ? emptyTime).split(':')
+      setHours(date, parts[0] ? 0)
+      setMinutes(date, parts[1] ? 0)
+      setSeconds(date, parts[2] ? 0)
+      return date
 
     addMonth = (date, val) -> new Date(setMonth(new Date(date), getMonth(date) + val))
 
@@ -324,11 +326,12 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
       if newVal
         dateInput = angular.element(element[0].querySelector(".quickdate-date-input"))[0]
         dateInput.select()
+        refreshView()
 
     # When the timezone is changed, refresh the view
     scope.$watch 'timezone', (newVal, oldVal) ->
       return if newVal is oldVal
-      refreshView()
+      ngModelCtrl.$render()
 
     # When the option disableTimepicker is changed, refresh the view
     scope.$watch 'disableTimepicker', (newVal, oldVal) ->
@@ -348,9 +351,9 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
     )
 
     # Select a new model date. This is called in 3 situations:
-    #   * Clicking a day on the calendar or from the `selectDateFromInput`
-    #   * Changing the date or time inputs, which call the `selectDateFromInput` method, which calls this method.
-    #   * The clear button is clicked
+    #   * Clicking a day on the calendar, which calls the `selectDateWithMouse` method, which calls this method.
+    #   * Changing the date or time inputs, which calls the `selectDateFromInput` method, which calls this method.
+    #   * The clear button is clicked.
     scope.selectDate = (date, closeCalendar=true) ->
       debugLog "selectDate: #{date?.toISOString()}"
       changed = (!ngModelCtrl.$viewValue && date) ||
@@ -367,13 +370,15 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
       true
 
     scope.selectDateWithMouse = (date) ->
+      # change the input date
+      scope.inputDate = dateToString(date, scope.getDateFormat())
       # close the calendar only when the time picker is disabled
-      scope.selectDate date, scope.disableTimepicker
+      scope.selectDateFromInput(scope.disableTimepicker)
 
     # This is triggered when the date or time inputs have a blur or enter event.
     scope.selectDateFromInput = (closeCalendar=false) ->
       try
-        tmpDate = parseDateString(combineDateAndTime(scope.inputDate, emptyTime))
+        tmpDate = parseDateString(combineDateAndTime(scope.inputDate, scope.defaultTime || emptyTime))
         if not tmpDate?
           throw new Error 'Invalid Date'
         if not scope.disableTimepicker and scope.inputTime?.length

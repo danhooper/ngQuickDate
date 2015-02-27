@@ -67,7 +67,7 @@
         },
         replace: true,
         link: function(scope, element, attrs, ngModelCtrl) {
-          var addMonth, combineDateAndTime, dateToString, datepickerClicked, datesAreEqual, datesAreEqualToMinute, debounce, debugLog, emptyTime, getDate, getDay, getDaysInMonth, getFullYear, getHours, getMilliseconds, getMinutes, getMonth, getSeconds, initialize, isUTC, parseDateString, refreshView, setCalendarDate, setConfigOptions, setDate, setFullYear, setHours, setInputFieldValues, setMilliseconds, setMinutes, setMonth, setSeconds, setupCalendarView, stringToDate, templateDate;
+          var addMonth, combineDateAndTime, dateToString, datepickerClicked, datesAreEqual, datesAreEqualToMinute, debounce, debugLog, emptyTime, getDate, getDay, getDaysInMonth, getFullYear, getHours, getMilliseconds, getMinutes, getMonth, getSeconds, initialize, isUTC, parseDateString, refreshView, setCalendarDate, setConfigOptions, setDate, setFullYear, setHours, setInputFieldValues, setMilliseconds, setMinutes, setMonth, setSeconds, setTime, setupCalendarView, stringToDate, templateDate;
           emptyTime = '00:00:00';
           debugLog = function(message) {
             if (scope.debug) {
@@ -167,7 +167,7 @@
             return scope.calendarDate = d;
           };
           setupCalendarView = function() {
-            var curDate, d, day, daysInMonth, numRows, offset, row, selected, time, today, weeks, _i, _j, _ref, _ref1, _ref2, _ref3;
+            var curDate, d, day, daysInMonth, numRows, offset, row, selected, today, weeks, _i, _j, _ref;
             offset = getDay(scope.calendarDate);
             daysInMonth = getDaysInMonth(getFullYear(scope.calendarDate), getMonth(scope.calendarDate));
             numRows = Math.ceil((offset + daysInMonth) / 7);
@@ -178,12 +178,7 @@
               weeks.push([]);
               for (day = _j = 0; _j <= 6; day = ++_j) {
                 d = new Date(curDate);
-                if (scope.defaultTime) {
-                  time = scope.defaultTime.split(':');
-                  setHours(d, (_ref1 = time[0]) != null ? _ref1 : 0);
-                  setMinutes(d, (_ref2 = time[1]) != null ? _ref2 : 0);
-                  setSeconds(d, (_ref3 = time[2]) != null ? _ref3 : 0);
-                }
+                setTime(d, emptyTime);
                 selected = ngModelCtrl.$modelValue && d && datesAreEqual(d, ngModelCtrl.$modelValue);
                 today = datesAreEqual(d, new Date());
                 weeks[row].push({
@@ -329,6 +324,14 @@
               return date.setSeconds(val);
             }
           };
+          setTime = function(date, val) {
+            var parts, _ref, _ref1, _ref2;
+            parts = (val != null ? val : emptyTime).split(':');
+            setHours(date, (_ref = parts[0]) != null ? _ref : 0);
+            setMinutes(date, (_ref1 = parts[1]) != null ? _ref1 : 0);
+            setSeconds(date, (_ref2 = parts[2]) != null ? _ref2 : 0);
+            return date;
+          };
           addMonth = function(date, val) {
             return new Date(setMonth(new Date(date), getMonth(date) + val));
           };
@@ -410,14 +413,15 @@
             var dateInput;
             if (newVal) {
               dateInput = angular.element(element[0].querySelector(".quickdate-date-input"))[0];
-              return dateInput.select();
+              dateInput.select();
+              return refreshView();
             }
           });
           scope.$watch('timezone', function(newVal, oldVal) {
             if (newVal === oldVal) {
               return;
             }
-            return refreshView();
+            return ngModelCtrl.$render();
           });
           scope.$watch('disableTimepicker', function(newVal, oldVal) {
             if (newVal === oldVal) {
@@ -449,7 +453,8 @@
             return true;
           };
           scope.selectDateWithMouse = function(date) {
-            return scope.selectDate(date, scope.disableTimepicker);
+            scope.inputDate = dateToString(date, scope.getDateFormat());
+            return scope.selectDateFromInput(scope.disableTimepicker);
           };
           scope.selectDateFromInput = function(closeCalendar) {
             var err, tmpDate, tmpDateAndTime, tmpTime, _ref;
@@ -457,7 +462,7 @@
               closeCalendar = false;
             }
             try {
-              tmpDate = parseDateString(combineDateAndTime(scope.inputDate, emptyTime));
+              tmpDate = parseDateString(combineDateAndTime(scope.inputDate, scope.defaultTime || emptyTime));
               if (tmpDate == null) {
                 throw new Error('Invalid Date');
               }
