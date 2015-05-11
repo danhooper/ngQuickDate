@@ -27,8 +27,9 @@ app.provider "ngQuickDateDefaults", ->
       disableClearButton: false
       defaultTime: null
       dayAbbreviations: ["Su", "M", "Tu", "W", "Th", "F", "Sa"],
-      dateFilter: null
-      timezone: null
+      dateFilter: null,
+      filterOptions: null,
+      timezone: null,
       debug: false
       parseDateFunction: (str) ->
         seconds = Date.parse(str)
@@ -53,7 +54,8 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
   restrict: "E"
   require: "?ngModel"
   scope:
-    dateFilter: '=?'
+    dateFilter: '=?',
+    filterOptions: '=?'
     disableTimepicker: '=?'
     disableClearButton: '=?'
     timezone: '=?'
@@ -183,7 +185,7 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
           weeks[row].push({
             date: d
             selected: selected
-            disabled: if (typeof(scope.dateFilter) == 'function') then !scope.dateFilter(d) else false
+            disabled: if (typeof(scope.dateFilter) == 'function') then !scope.dateFilter(d, scope.filterOptions) else false
             other: getMonth(d) != getMonth(scope.calendarDate)
             today: today
           })
@@ -363,7 +365,7 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', '$lo
                   (date && ngModelCtrl.$viewValue) &&
                   (date.getTime() != ngModelCtrl.$viewValue.getTime())
                 )
-      if typeof(scope.dateFilter) == 'function' && !scope.dateFilter(date)
+      if typeof(scope.dateFilter) == 'function' && !scope.dateFilter(date, scope.filterOptions)
         return false
       ngModelCtrl.$setViewValue(date)
       if closeCalendar

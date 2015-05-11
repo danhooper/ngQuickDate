@@ -20,6 +20,7 @@
         defaultTime: null,
         dayAbbreviations: ["Su", "M", "Tu", "W", "Th", "F", "Sa"],
         dateFilter: null,
+        filterOptions: null,
         timezone: null,
         debug: false,
         parseDateFunction: function(str) {
@@ -58,6 +59,7 @@
         require: "?ngModel",
         scope: {
           dateFilter: '=?',
+          filterOptions: '=?',
           disableTimepicker: '=?',
           disableClearButton: '=?',
           timezone: '=?',
@@ -184,7 +186,7 @@
                 weeks[row].push({
                   date: d,
                   selected: selected,
-                  disabled: typeof scope.dateFilter === 'function' ? !scope.dateFilter(d) : false,
+                  disabled: typeof scope.dateFilter === 'function' ? !scope.dateFilter(d, scope.filterOptions) : false,
                   other: getMonth(d) !== getMonth(scope.calendarDate),
                   today: today
                 });
@@ -443,7 +445,7 @@
             }
             debugLog("selectDate: " + (date != null ? date.toISOString() : void 0));
             changed = (!ngModelCtrl.$viewValue && date) || (ngModelCtrl.$viewValue && !date) || ((date && ngModelCtrl.$viewValue) && (date.getTime() !== ngModelCtrl.$viewValue.getTime()));
-            if (typeof scope.dateFilter === 'function' && !scope.dateFilter(date)) {
+            if (typeof scope.dateFilter === 'function' && !scope.dateFilter(date, scope.filterOptions)) {
               return false;
             }
             ngModelCtrl.$setViewValue(date);
