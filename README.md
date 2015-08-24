@@ -7,6 +7,7 @@ There are several improvements over the original version:
 * Data-binding of configurations (`timezone`, `disableTimepicker`, `disableClearButton`, more to be supported)
 * Clicking on a date will not close the calendar pop-out if timepicker is not disabled
 * Time is set to `defaultTime` when date is inputed (by the textbox or mouse click)
+* Ability to override template with custom URI/id (thanks [@alexborisov](https://github.com/alexborisov)!)
 
 Note: To support the timezone feature, the dependency of Angular is upgraded to 1.3+.
 
