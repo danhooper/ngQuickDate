@@ -20,6 +20,7 @@
         defaultTime: null,
         dayAbbreviations: ["Su", "M", "Tu", "W", "Th", "F", "Sa"],
         dateFilter: null,
+        filterOptions: null,
         timezone: null,
         debug: false,
         parseDateFunction: function(str) {
@@ -58,6 +59,7 @@
         require: "?ngModel",
         scope: {
           dateFilter: '=?',
+          filterOptions: '=?',
           disableTimepicker: '=?',
           disableClearButton: '=?',
           timezone: '=?',
@@ -184,7 +186,7 @@
                 weeks[row].push({
                   date: d,
                   selected: selected,
-                  disabled: typeof scope.dateFilter === 'function' ? !scope.dateFilter(d) : false,
+                  disabled: typeof scope.dateFilter === 'function' ? !scope.dateFilter(d, scope.filterOptions) : false,
                   other: getMonth(d) !== getMonth(scope.calendarDate),
                   today: today
                 });
@@ -443,7 +445,7 @@
             }
             debugLog("selectDate: " + (date != null ? date.toISOString() : void 0));
             changed = (!ngModelCtrl.$viewValue && date) || (ngModelCtrl.$viewValue && !date) || ((date && ngModelCtrl.$viewValue) && (date.getTime() !== ngModelCtrl.$viewValue.getTime()));
-            if (typeof scope.dateFilter === 'function' && !scope.dateFilter(date)) {
+            if (typeof scope.dateFilter === 'function' && !scope.dateFilter(date, scope.filterOptions)) {
               return false;
             }
             ngModelCtrl.$setViewValue(date);
@@ -516,8 +518,16 @@
           };
           return initialize();
         },
-        template: "<div class='quickdate'>\n  <a href='' ng-focus='toggleCalendar()' ng-click='toggleCalendar()'\n      class='quickdate-button' title='{{hoverText}}'>\n    <div ng-hide='iconClass' ng-bind-html='buttonIconHtml'></div>\n    {{mainButtonStr}}\n  </a>\n  <div class='quickdate-popup' ng-class='{open: calendarShown}'>\n    <a href='' tabindex='-1' class='quickdate-close' ng-click='toggleCalendar()'>\n      <div ng-bind-html='closeButtonHtml'></div>\n    </a>\n    <div class='quickdate-text-inputs'>\n      <div class='quickdate-input-wrapper'>\n        <label>Date</label>\n        <input class='quickdate-date-input' ng-class=\"{'ng-invalid': inputDateErr}\"\n               name='inputDate' type='text' ng-model='inputDate'\n               placeholder='{{ getDatePlaceholder() }}'\n               ng-enter=\"selectDateFromInput(true)\"\n               ng-blur=\"selectDateFromInput(false)\"\n               on-tab='onDateInputTab()' />\n      </div>\n      <div class='quickdate-input-wrapper' ng-hide='disableTimepicker'>\n        <label>Time</label>\n        <input class='quickdate-time-input'\n               ng-class=\"{'ng-invalid': inputTimeErr}\"\n               name='inputTime'\n               type='text'\n               ng-model='inputTime'\n               placeholder='{{ getTimePlaceholder() }}'\n               ng-enter=\"selectDateFromInput(true)\"\n               ng-blur=\"selectDateFromInput(false)\"\n               on-tab='onTimeInputTab()'>\n      </div>\n    </div>\n    <div class='quickdate-calendar-header'>\n      <a href='' class='quickdate-prev-month quickdate-action-link' tabindex='-1' ng-click='prevMonth()'>\n        <div ng-bind-html='prevLinkHtml'></div>\n      </a>\n      <span class='quickdate-month'>{{calendarDate | date:'MMMM yyyy'}}</span>\n      <a href='' class='quickdate-next-month quickdate-action-link' ng-click='nextMonth()' tabindex='-1' >\n        <div ng-bind-html='nextLinkHtml'></div>\n      </a>\n    </div>\n    <table class='quickdate-calendar'>\n      <thead>\n        <tr>\n          <th ng-repeat='day in dayAbbreviations'>{{day}}</th>\n        </tr>\n      </thead>\n      <tbody>\n        <tr ng-repeat='week in weeks'>\n          <td ng-mousedown='selectDateWithMouse(day.date)'\n              ng-click='$event.preventDefault()'\n              ng-class='{\"other-month\": day.other, \"disabled-date\": day.disabled, \"selected\": day.selected, \"is-today\": day.today}'\n              ng-repeat='day in week'>{{day.date | date:'d':timezone}}</td>\n        </tr>\n      </tbody>\n    </table>\n    <div class='quickdate-popup-footer'>\n      <a href='' class='quickdate-clear' tabindex='-1' ng-hide='disableClearButton' ng-click='clear()'>Clear</a>\n    </div>\n  </div>\n</div>"
+        templateUrl: function(elem, attrs) {
+          return attrs.template || 'ngQuickDate/ngQuickDate.tpl.html';
+        }
       };
+    }
+  ]);
+
+  app.run([
+    '$templateCache', function($templateCache) {
+      return $templateCache.put('ngQuickDate/ngQuickDate.tpl.html', "<div class=\"quickdate\">\n  <a href=\"\" ng-focus=\"toggleCalendar()\" ng-click=\"toggleCalendar()\" class=\"quickdate-button\" title=\"{{hoverText}}\">\n    <div ng-hide=\"iconClass\" ng-bind-html=\"buttonIconHtml\"></div>\n    {{mainButtonStr}}\n  </a>\n\n  <div class=\"quickdate-popup\" ng-class=\"{open: calendarShown}\">\n    <a href=\"\" tabindex=\"-1\" class=\"quickdate-close\" ng-click=\"toggleCalendar()\">\n      <div ng-bind-html=\"closeButtonHtml\"></div>\n    </a>\n\n    <div class=\"quickdate-text-inputs\">\n      <div class=\"quickdate-input-wrapper\">\n        <label>Date</label>\n        <input class=\"quickdate-date-input\" ng-class=\"{'ng-invalid': inputDateErr}\"\n               name=\"inputDate\" type=\"text\" ng-model=\"inputDate\"\n               placeholder=\"{{ getDatePlaceholder() }}\"\n               ng-enter=\"selectDateFromInput(true)\"\n               ng-blur=\"selectDateFromInput(false)\"\n               on-tab=\"onDateInputTab()\"/>\n      </div>\n      <div class=\"quickdate-input-wrapper\" ng-hide=\"disableTimepicker\">\n        <label>Time</label>\n        <input class=\"quickdate-time-input\"\n               ng-class=\"{'ng-invalid': inputTimeErr}\"\n               name=\"inputTime\"\n               type=\"text\"\n               ng-model=\"inputTime\"\n               placeholder=\"{{ getTimePlaceholder() }}\"\n               ng-enter=\"selectDateFromInput(true)\"\n               ng-blur=\"selectDateFromInput(false)\"\n               on-tab=\"onTimeInputTab()\">\n      </div>\n    </div>\n    <div class=\"quickdate-calendar-header\">\n      <a href=\"\" class=\"quickdate-prev-month quickdate-action-link\" tabindex=\"-1\" ng-click=\"prevMonth()\">\n        <div ng-bind-html=\"prevLinkHtml\"></div>\n      </a>\n      <span class=\"quickdate-month\">{{calendarDate | date:'MMMM yyyy'}}</span>\n      <a href=\"\" class=\"quickdate-next-month quickdate-action-link\" ng-click=\"nextMonth()\" tabindex=\"-1\">\n        <div ng-bind-html=\"nextLinkHtml\"></div>\n      </a>\n    </div>\n    <table class=\"quickdate-calendar\">\n      <thead>\n      <tr>\n        <th ng-repeat=\"day in dayAbbreviations\">{{day}}</th>\n      </tr>\n      </thead>\n      <tbody>\n      <tr ng-repeat=\"week in weeks\">\n        <td ng-mousedown=\"selectDateWithMouse(day.date)\"\n            ng-click=\"$event.preventDefault()\"\n            ng-class=\"{'other-month': day.other, 'disabled-date': day.disabled, 'selected': day.selected, 'is-today': day.today}\"\n            ng-repeat=\"day in week\">{{day.date | date:'d':timezone}}\n        </td>\n      </tr>\n      </tbody>\n    </table>\n    <div class=\"quickdate-popup-footer\">\n      <a href=\"\" class=\"quickdate-clear\" tabindex=\"-1\" ng-hide=\"disableClearButton\" ng-click=\"clear()\">Clear</a>\n    </div>\n  </div>\n</div>");
     }
   ]);
 
