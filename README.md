@@ -1,6 +1,6 @@
 # Regarding this fork
 
-This is a fork of the original [ngQuickDate](https://github.com/gildorwang/ngQuickDate) by [Adam Albrecht](https://github.com/adamalbrecht). 
+This is a fork of the original [ngQuickDate](https://github.com/gildorwang/ngQuickDate) by [Adam Albrecht](https://github.com/adamalbrecht).
 There are several improvements over the original version:
 
 * Support of UTC timezone
@@ -27,7 +27,7 @@ ngQuickDate is an [Angular.js](http://angularjs.org/) Date/Time picker directive
 You can also install the package using [Bower](http://bower.io).
 
 ```sh
-bower install ngQuickDate
+bower install gildorwang-ng-quick-date
 ```
 
 Or add it to your bower.json file:
