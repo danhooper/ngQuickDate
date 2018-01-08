@@ -1,6 +1,6 @@
 {
   "name": "ngQuickDate",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-contrib-coffee": "~0.7",

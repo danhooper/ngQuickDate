@@ -1,6 +1,6 @@
 {
   "name": "ngQuickDate",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "main": ["dist/ng-quick-date.js", "dist/ng-quick-date.css", "dist/ng-quick-date-default-theme.css"],
   "ignore": [
     "bower_components",
