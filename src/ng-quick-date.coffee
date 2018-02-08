@@ -384,11 +384,11 @@ app.directive 'ngEnter', ['$parse', ($parse) ->
   (scope, element, attr) ->
     element.bind 'keydown keypress', (e) ->
       if (e.which == 13)
-        scope.$applyAsync(() => {
+        scope.$applyAsync(() ->
             scope.$parent.inputTime = scope.inputTime
             scope.$parent.inputDate = scope.inputDate
             $parse(attr.ngEnter)(scope.$parent)
-        })
+        )
         e.preventDefault()
 ]
 
@@ -397,11 +397,11 @@ app.directive 'onTab', ['$parse', ($parse) ->
   link: (scope, element, attr) ->
     element.bind 'keydown keypress', (e) ->
       if (e.which == 9)
-        scope.$applyAsync(() => {
+        scope.$applyAsync(() ->
             scope.$parent.inputTime = scope.inputTime
             scope.$parent.inputDate = scope.inputDate
             scope.$parent.selectDateFromInput();
             if (!e.shiftKey)
               $parse(attr.onTab)(scope.$parent)
-        })
+        )
 ]

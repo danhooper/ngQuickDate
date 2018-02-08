@@ -344,28 +344,43 @@
     }
   ]);
 
-  app.directive('ngEnter', function() {
-    return function(scope, element, attr) {
-      return element.bind('keydown keypress', function(e) {
-        if (e.which === 13) {
-          scope.$apply(attr.ngEnter);
-          return e.preventDefault();
-        }
-      });
-    };
-  });
-
-  app.directive('onTab', function() {
-    return {
-      restrict: 'A',
-      link: function(scope, element, attr) {
+  app.directive('ngEnter', [
+    '$parse', function($parse) {
+      return function(scope, element, attr) {
         return element.bind('keydown keypress', function(e) {
-          if ((e.which === 9) && !e.shiftKey) {
-            return scope.$apply(attr.onTab);
+          if (e.which === 13) {
+            scope.$applyAsync(function() {
+              scope.$parent.inputTime = scope.inputTime;
+              scope.$parent.inputDate = scope.inputDate;
+              return $parse(attr.ngEnter)(scope.$parent);
+            });
+            return e.preventDefault();
           }
         });
-      }
-    };
-  });
+      };
+    }
+  ]);
+
+  app.directive('onTab', [
+    '$parse', function($parse) {
+      return {
+        restrict: 'A',
+        link: function(scope, element, attr) {
+          return element.bind('keydown keypress', function(e) {
+            if (e.which === 9) {
+              return scope.$applyAsync(function() {
+                scope.$parent.inputTime = scope.inputTime;
+                scope.$parent.inputDate = scope.inputDate;
+                scope.$parent.selectDateFromInput();
+                if (!e.shiftKey) {
+                  return $parse(attr.onTab)(scope.$parent);
+                }
+              });
+            }
+          });
+        }
+      };
+    }
+  ]);
 
 }).call(this);
