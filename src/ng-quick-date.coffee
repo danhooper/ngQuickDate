@@ -380,16 +380,28 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', (ngQ
             """
 ]
 
-app.directive 'ngEnter', ->
+app.directive 'ngEnter', ['$parse', ($parse) ->
   (scope, element, attr) ->
     element.bind 'keydown keypress', (e) ->
       if (e.which == 13)
-        scope.$apply(attr.ngEnter)
+        scope.$applyAsync(() => {
+            scope.$parent.inputTime = scope.inputTime
+            scope.$parent.inputDate = scope.inputDate
+            $parse(attr.ngEnter)(scope.$parent)
+        })
         e.preventDefault()
+]
 
-app.directive 'onTab', ->
+app.directive 'onTab', ['$parse', ($parse) ->
   restrict: 'A',
   link: (scope, element, attr) ->
     element.bind 'keydown keypress', (e) ->
-      if (e.which == 9) && !e.shiftKey
-        scope.$apply(attr.onTab)
+      if (e.which == 9)
+        scope.$applyAsync(() => {
+            scope.$parent.inputTime = scope.inputTime
+            scope.$parent.inputDate = scope.inputDate
+            scope.$parent.selectDateFromInput();
+            if (!e.shiftKey)
+              $parse(attr.onTab)(scope.$parent)
+        })
+]
