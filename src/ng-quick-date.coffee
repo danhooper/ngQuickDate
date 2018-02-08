@@ -348,11 +348,11 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', (ngQ
                 <div class='quickdate-text-inputs'>
                   <div class='quickdate-input-wrapper'>
                     <label>{{dateHtml}}</label>
-                    <input class='quickdate-date-input' ng-class="{'ng-invalid': inputDateErr}" name='inputDate' type='text' ng-model='inputDate' placeholder='{{ datePlaceholder }}' ng-enter="selectDateFromInput(true)" ng-blur="selectDateFromInput(false)" on-tab='onDateInputTab()' />
+                    <input class='quickdate-date-input' ng-class="{'ng-invalid': inputDateErr}" name='inputDate' type='text' ng-model='$parent.inputDate' placeholder='{{ datePlaceholder }}' ng-enter="selectDateFromInput(true)" ng-blur="selectDateFromInput(false)" on-tab='onDateInputTab()' />
                   </div>
                   <div class='quickdate-input-wrapper' ng-hide='disableTimepicker'>
                     <label>{{timeHtml}}</label>
-                    <input class='quickdate-time-input' ng-class="{'ng-invalid': inputTimeErr}" name='inputTime' type='text' ng-model='inputTime' placeholder='{{ timePlaceholder }}' ng-enter="selectDateFromInput(true)" ng-blur="selectDateFromInput(false)" on-tab='onTimeInputTab()'>
+                    <input class='quickdate-time-input' ng-class="{'ng-invalid': inputTimeErr}" name='inputTime' type='text' ng-model='$parent.inputTime' placeholder='{{ timePlaceholder }}' ng-enter="selectDateFromInput(true)" ng-blur="selectDateFromInput(false)" on-tab='onTimeInputTab()'>
                   </div>
                 </div>
                 <div class='quickdate-calendar-header'>
@@ -380,28 +380,16 @@ app.directive "quickDatepicker", ['ngQuickDateDefaults', '$filter', '$sce', (ngQ
             """
 ]
 
-app.directive 'ngEnter', ['$parse', ($parse) ->
+app.directive 'ngEnter', ->
   (scope, element, attr) ->
     element.bind 'keydown keypress', (e) ->
       if (e.which == 13)
-        scope.$applyAsync(() ->
-            scope.$parent.inputTime = scope.inputTime
-            scope.$parent.inputDate = scope.inputDate
-            $parse(attr.ngEnter)(scope.$parent)
-        )
+        scope.$applyAsync(attr.ngEnter)
         e.preventDefault()
-]
 
-app.directive 'onTab', ['$parse', ($parse) ->
+app.directive 'onTab', ->
   restrict: 'A',
   link: (scope, element, attr) ->
     element.bind 'keydown keypress', (e) ->
-      if (e.which == 9)
-        scope.$applyAsync(() ->
-            scope.$parent.inputTime = scope.inputTime
-            scope.$parent.inputDate = scope.inputDate
-            scope.$parent.selectDateFromInput();
-            if (!e.shiftKey)
-              $parse(attr.onTab)(scope.$parent)
-        )
-]
+      if (e.which == 9) && !e.shiftKey
+        scope.$applyAsync(attr.onTab)
